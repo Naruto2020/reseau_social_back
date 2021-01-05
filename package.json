@@ -4,8 +4,7 @@
   "description": "serveur Back-end RS",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "build": "scripts/build.sh"
+    "start": "node index.js"
   },
   "engines": {
     "node": "14.6.0",
