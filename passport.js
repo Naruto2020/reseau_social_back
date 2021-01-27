@@ -34,10 +34,10 @@ passport.use(new JwtStrategy(
     
 }));
 
-// authentification local avec l'email et le mdp
+// authentification local avec le pseudo et le mdp
 passport.use(new LocalStrategy(
     (username, password, done)=>{
-        User.findOne({ username:username },(err, user)=>{
+        User.findOne({ username:username }, {niveau:1},(err, user)=>{
            // en cas de soucis avec la BDD
            if(err){
             return done(err);

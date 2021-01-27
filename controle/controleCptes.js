@@ -33,6 +33,7 @@ const ObjetId = require("mongoose").Types.ObjectId;
 const { User } = require("../modele/comptes.js");
 const {Image} = require("../modele/images.js");
 const {ImagePro} = require("../modele/profils.js");
+const {Poste} = require("../modele/post.js");
 const {Amis} = require("../modele/amis.js");
 
 //const { Image} = require("../modele/images.js");
@@ -286,7 +287,7 @@ router.get("/imagePros/:id", (req, res)=>{
 });
 
 // pour supprimer une image profil
-router.delete("/imagePro/:id", (req, res, next) => {
+router.delete("/imagePros/:id", (req, res, next) => {
   if (!ObjetId.isValid(req.params.id))
     return res.status(400).send(`id incorrecte ${req.params.id}`);
   ImagePro.findByIdAndDelete(req.params.id, (err, doc) => {
@@ -332,7 +333,7 @@ router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
             }else{
               //res.status(201).json({message : {msgBody : "profil créer avec sucsses", msgError:false}});
               console.log(
-                "erreur lors de l'enregistrement du produit:" +
+                "erreur lors de l'enregistrement du profil:" +
                 JSON.stringify(err, undefined, 2));
 
             }
@@ -376,7 +377,7 @@ async function sendMail(user, cb){
     subject: "wellcome to Swap-It 👻 ✔", // Sujet 
     html: `<h1>Bonjour  ${user.username} </h1><br/>
     <h4>merci de rejoindre l'aventure Swap-It !</h4>
-    <p>cliquez sur le lien http://localhost:4200/conectUser</p> `, 
+    <p>cliquez sur le lien https://localhost:4200/conectUser</p> `, 
   }
   // envois du mail et de son contenu 
   let info = await transporter.sendMail(mailOptions);
@@ -389,12 +390,13 @@ router.post("/login", passport.authenticate('local', {session: false}), (req, re
   if (req.isAuthenticated()) {
     //console.log("Mail et/ou le mot de passe non fourni(s).");
     // authentification
-    const { _id , username, password , niveau} = req.body;
+    const { _id , username, password, niveau } = req.body;
+    User.findOne({username:req.body.username},{password:1, niveau:1})
     // autorisation JWT
     const token = signToken( _id );
     // gestion des cookies
     res.cookie('access_token', token, {httpOnly: true, sameSite:true});
-    res.status(200).json({isAuthenticated : true, user : {_id ,username, password,niveau}});
+    res.status(200).json({isAuthenticated : true, user : {_id ,username, password,niveau}});  
     
   }
   
@@ -493,7 +495,7 @@ router.post("/forgotPassword", (req, res, next)=>{
         subject: "wellcome to Swap-It 👻 ✔", // Sujet 
         html: `<h1>Bonjour  ${user.prenom} </h1><br/>
         <h4>Bienvenue sur Swap-It votre identifiant est ${user.username} et votre mot de passe est ${user.password} clicquez ici pour reinitialiser votre mot de passe !</h4>
-        <p>http://localhost:4200/reset/${token} \n\n ignorez ce mail si vous n'ête pas l'auteur de la démarche<p>`, 
+        <p>https://localhost:4200/reset/${token} \n\n ignorez ce mail si vous n'ête pas l'auteur de la démarche<p>`, 
       };
       smtpTransport.sendMail(mailOptions, (err)=>{
         res.json({message: 'message recu !!!'});
@@ -587,7 +589,7 @@ router.post("/reset/:token", (req, res, next)=>{
   });
 });
 
-// suppression des produits
+// suppression des profils
 router.delete("/users/:id", (req, res, next) => {
   if (!ObjetId.isValid(req.params.id))
     return res.status(400).send(`id incorrecte ${req.params.id}`);
@@ -596,7 +598,74 @@ router.delete("/users/:id", (req, res, next) => {
       res.send(doc);
     } else {
       console.log(
-        "erreur lors de la suppression du produit:" +
+        "erreur lors de la suppression du profils:" +
+          JSON.stringify(err, undefined, 2)
+      );
+    }
+  });
+});
+
+/******************************************************************************************************
+ * *****    *****  gestion des requêtes de méssagerie publique  ***** *****
+ */
+// ajout d'un post texte 
+router.post("/messagePublic", (req, res)=>{
+  const  { message, commentaires, loadBy} = req.body;
+  const date = Date.now();
+      const newPost = new Poste({message, commentaires, date, loadBy});
+      //enregistrement du post  
+      newPost.save((err,doc)=>{
+        if(!err){
+          res.send(doc);
+        }else{
+          console.log(
+            "erreur lors de l'enregistrement du post:" +
+            JSON.stringify(err, undefined, 2));
+        }
+
+      });  
+
+});
+
+// afficher les post texte 
+router.get("/messagePublic",(req, res)=>{
+  Poste.find((err, docs)=>{
+    if(!err){
+      res.send(docs);
+    }else{
+      console.log("erreur de transmission de la liste des postes:" + JSON.stringify(err, undefined, 2));
+    }
+  });
+
+});
+
+// pour afficher un poste avec son ID 
+router.get("/messagePubic/:id", (req, res)=>{
+  // verrification de la validité de l'ID
+  if(!ObjetId.isValid(req.params.id))
+    return res.status(400).send(`Id incorrecte ${req.params.id}`);
+  Poste.findById(req.params.id, (err, doc)=>{
+      if(!err){
+          res.send(doc);
+      }else{
+          console.log("erreur de transmission du poste:" + JSON.stringify(err, undefined, 2));
+          
+      }
+  }); 
+  
+
+});
+
+// suppression des profils
+router.delete("/messagePubic/:id", (req, res, next) => {
+  if (!ObjetId.isValid(req.params.id))
+    return res.status(400).send(`id incorrecte ${req.params.id}`);
+  Poste.findByIdAndDelete(req.params.id, (err, doc) => {
+    if (!err) {
+      res.send(doc);
+    } else {
+      console.log(
+        "erreur lors de la suppression du profils:" +
           JSON.stringify(err, undefined, 2)
       );
     }
@@ -611,40 +680,35 @@ router.delete("/users/:id", (req, res, next) => {
 
 router.get('/:nom', function(req, res) {
   
-  User.findOne({nom : req.params.nom}, {username:1, nom :1 ,  age:1 , genre :1, preferences:1 , presentation:1} , function(err, user) {
+  User.findOne({nom : req.params.nom}, function(err, user) {
     if (!user) {
       res.json({message: "Couldn't find a user by that name"});
       return;
     } 
-    res.json(user);
+    res.status(200).json(user);
   });
 });
 
-// Ajout utilisateur 
+// Ajout amis 
 
-router.post('/:nom', (req, res, next)=>{
+ router.post('/:nom', (req, res, next)=>{
   async.waterfall([
     function(done){
-      User.findOne({nom:req.params.nom},{amis:1}, (err, user)=>{
-        console.log(req.params.nom);
+      User.findOne({nom:req.params.nom}, (err, user)=>{
+        console.log("ut qui recoit l'invite",req.params.nom);
         if(!user){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
         }
-         
-        
-        /*if(amis){
-          res.status(400).json({message : {msgBody : "utilisateur déjas amis .", msgError:true}});
-        }*/
-        
-        
-        user.amis.push( req.body.amis);
-        console.log(req.body.amis);
-        //user.amis.acceptBy = req.body.amis.acceptBy;
+        amis = req.body.amis;
         //user.amis.notifs = Date.now();
-        
+            
+        user.amis.push( req.body.amis);
+        console.log("qui est ce ...",req.body.amis);
+            
         user.save((err)=>{
           done(err, user);
         });
+        
       });
     },
     
@@ -679,6 +743,57 @@ router.post('/:nom', (req, res, next)=>{
 
   });
 });
+
+// suppression amis
+/* router.delete('/:nom', (req, res, next)=>{
+  async.waterfall([
+    function(done){
+      User.findOne({nom:req.params.username}, (err, user)=>{
+        console.log("ut qui recoit l'invite",req.params.username);
+        if(!user){
+          res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
+        }
+        amis = req.body.amis;
+        let index = user.amis.indexOf(req.body.amis);
+        //user.amis.notifs = Date.now();
+            
+        user.amis.splice(index, 1);
+        console.log("qui est ce ...",req.body.amis);
+        
+      });
+    },
+    
+    function( user, done){
+      var smtpTransport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user:details.mail, // generated ethereal user
+          pass: details.password // generated ethereal password
+        },
+      });
+      let mailOptions = {
+        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
+        to: user.mail, // address email receptrice
+        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
+        html: `<h1>Bonjour  ${user.username} </h1><br/>
+        <h4> vous avez supprimer l'utilisateur  ${req.body.amis} de votre liste d'amis  liste d'amis </h4>`,
+         
+      };
+      smtpTransport.sendMail(mailOptions, (err)=>{
+        res.json({message: 'message recu !!!'});
+        done(err);
+      });
+    }
+
+  ], function(err){
+    if(err){
+      return next(err);
+    }
+
+  });
+});*/
 
 /*router.post('/amis', (req, res, next)=>{
   

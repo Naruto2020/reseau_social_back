@@ -15,7 +15,7 @@ const { mongoose } = require("./db.js");
 
 // on recupère le routage dans la variable controleProduit via la modularisation
 var controleCptes = require("./controle/controleCptes");
-var controleImges = require("./controle/controleImges");
+//var controleImges = require("./controle/controleImges");
 
 
 // gestion des dossiers
@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 var corsOptions = {
-  origin: 'http://localhost:4200',
+  origin: 'https://localhost:4200',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
