@@ -627,7 +627,7 @@ router.post("/messagePublic", (req, res)=>{
 
 });
 
-// afficher les post texte 
+// afficher les posts texte 
 router.get("/messagePublic",(req, res)=>{
   Poste.find((err, docs)=>{
     if(!err){
@@ -639,7 +639,7 @@ router.get("/messagePublic",(req, res)=>{
 
 });
 
-// pour afficher un poste avec son ID 
+// pour afficher un post avec son ID 
 router.get("/messagePubic/:id", (req, res)=>{
   // verrification de la validité de l'ID
   if(!ObjetId.isValid(req.params.id))
@@ -656,7 +656,36 @@ router.get("/messagePubic/:id", (req, res)=>{
 
 });
 
-// suppression des profils
+// mise à jour des posts 
+router.put("/messagePublic/:id" , (req, res, next) => {
+  if (!ObjetId.isValid(req.params.id))
+    return res.status(400).send(`id incorrecte ${req.params.id}`);
+  var date = Date.now();  
+  var newPost = {
+    message: req.body.message,
+    commentaires : req.body.commentaires,
+    loadBy : req.body.loadBy,
+    date:date
+  };
+  
+  Poste.findByIdAndUpdate(
+    req.params.id,
+    { $set: newPost },
+    { new: true }, // cette option permet de retourner toutes les mises a jours dans la reponse
+    (err, doc) => {
+      if (!err) {
+        res.send(doc);
+      } else {
+        console.log(
+          "erreur lors de la mise a jour du post:" +
+          JSON.stringify(err, undefined, 2)
+              );
+      }
+    }
+  );
+});    
+
+// suppression des posts
 router.delete("/messagePubic/:id", (req, res, next) => {
   if (!ObjetId.isValid(req.params.id))
     return res.status(400).send(`id incorrecte ${req.params.id}`);

@@ -74,26 +74,27 @@ const UserSchema = new Schema({
 });
 
 UserSchema.pre("save", function(next){  
-    // only hash the password if it has been modified (or is new)
-    if (!this.isModified('password')) 
+    var user = this;
+    // on hash le password si il est modifier (ou nouveau)
+    if (!user.isModified('password')) 
         return next();
         
-    // hash the password along with our new salt
-    bcrypt.hash(this.password, SALT_WORK_FACTOR, (err, passwordHash)=> {
+    // on hash le password avec le salt
+    bcrypt.hash(user.password, SALT_WORK_FACTOR, function(err, passwordHash) {
         if (err) 
             return next(err);
             
         // override the cleartext password with the hashed one
-        this.password = passwordHash;
+        user.password = passwordHash;
         //console.log(this.password);
         
          next();
         });  
     });
     
-    UserSchema.methods.comparePassword = function(password, cb) {
+    UserSchema.methods.comparePassword = function(candidatePassword, cb) {
         
-        bcrypt.compare(password, this.password, function(err, isMatch) {
+        bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
             if (err){
                 return cb(err);
             }else{
