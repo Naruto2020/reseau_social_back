@@ -684,7 +684,7 @@ router.put("/messagePublic/:id" , (req, res, next) => {
 });    
 
 // suppression des posts
-router.delete("/messagePubic/:id", (req, res, next) => {
+router.delete("/messagePublic/:id", (req, res, next) => {
   if (!ObjetId.isValid(req.params.id))
     return res.status(400).send(`id incorrecte ${req.params.id}`);
   Poste.findByIdAndDelete(req.params.id, (err, doc) => {
@@ -692,7 +692,7 @@ router.delete("/messagePubic/:id", (req, res, next) => {
       res.send(doc);
     } else {
       console.log(
-        "erreur lors de la suppression du profils:" +
+        "erreur lors de la suppression du post:" +
           JSON.stringify(err, undefined, 2)
       );
     }
