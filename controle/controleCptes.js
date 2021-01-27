@@ -122,7 +122,6 @@ router.get("/users/:id", (req, res)=>{
         }
     }); 
     
-
 });
 
 /****************************************************************************************************
@@ -640,7 +639,7 @@ router.get("/messagePublic",(req, res)=>{
 });
 
 // pour afficher un post avec son ID 
-router.get("/messagePubic/:id", (req, res)=>{
+router.get("/messagePublic/:id", (req, res)=>{
   // verrification de la validité de l'ID
   if(!ObjetId.isValid(req.params.id))
     return res.status(400).send(`Id incorrecte ${req.params.id}`);
@@ -653,7 +652,6 @@ router.get("/messagePubic/:id", (req, res)=>{
       }
   }); 
   
-
 });
 
 // mise à jour des posts 
