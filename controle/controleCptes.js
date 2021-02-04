@@ -722,8 +722,8 @@ router.patch('/follow/:nom', (req, res, next)=>{
   async.waterfall([
     function(done){
       // ajout liste followings
-      User.findOne({nom:req.params.nom}, (err, user)=>{
-        console.log("ut qui invite",req.params.nom);
+      User.findOne({nom:req.params.username}, (err, user)=>{
+        console.log("ut qui invite",req.params.username);
         if(!user){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
         }
@@ -748,7 +748,7 @@ router.patch('/follow/:nom', (req, res, next)=>{
         if(!user){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
         }
-        user.followers.push(req.params.nom);
+        user.followers.push(req.params.username);
         user.save(err=>{
           done(err, user);
         });
@@ -770,7 +770,7 @@ router.patch('/follow/:nom', (req, res, next)=>{
         to: user.mail, // address email receptrice
         subject: "wellcome to Swap-It 👻 ✔", // Sujet 
         html: `<h1>Bonjour  ${user.username} </h1><br/>
-        <h4>L'utilisateur ${req.params.nom}  vous a ajouter à ça liste d'amis </h4>`,
+        <h4>L'utilisateur ${req.params.username}  vous a ajouter à ça liste d'amis </h4>`,
          
       };
       smtpTransport.sendMail(mailOptions, (err)=>{
@@ -793,7 +793,7 @@ router.patch('/unfollow/:nom', (req, res, next)=>{
   async.waterfall([
     function(done){
       // retrait de la  liste followings
-      User.findOne({nom:req.params.nom}, (err, user)=>{
+      User.findOne({nom:req.params.username}, (err, user)=>{
         //console.log("ut qui invite",req.params.nom);
         if(!user){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
@@ -831,7 +831,7 @@ router.patch('/unfollow/:nom', (req, res, next)=>{
         //user.followers.push(req.params.nom);
         console.log(user.followers);
         var arr1 = user.followers;
-        const index = arr1.indexOf(req.params.nom);
+        const index = arr1.indexOf(req.params.username);
         if(index > -1){
           arr1.splice(index,1);
         }
@@ -857,7 +857,7 @@ router.patch('/unfollow/:nom', (req, res, next)=>{
         to: user.mail, // address email receptrice
         subject: "wellcome to Swap-It 👻 ✔", // Sujet 
         html: `<h1>Bonjour  ${user.username} </h1><br/>
-        <h4>L'utilisateur ${req.params.nom}  vous a retirer de ça liste d'amis </h4>`,
+        <h4>L'utilisateur ${req.params.username}  vous a retirer de ça liste d'amis </h4>`,
          
       };
       smtpTransport.sendMail(mailOptions, (err)=>{
