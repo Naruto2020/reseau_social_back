@@ -31,6 +31,12 @@ var corsOptions = {
 
 app.use(cors({ origin: "*", corsOptions}));
 
+app.use(function (request, response, next) {
+  response.header("Access-Control-Allow-Origin", "*");
+  response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 /*app.get("*", (req, res, next) => {
   res.sendFile(path.normalize(`${__dirname} /index.html`), (error) => {
     if (error) {
