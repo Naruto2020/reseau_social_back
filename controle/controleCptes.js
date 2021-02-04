@@ -718,113 +718,42 @@ router.get('/:nom', function(req, res) {
   });
 });
 
-// Ajout amis 
-
-/*router.patch('/follow/:username', (req, res, next)=>{
-  async.waterfall([
-    function(done){
-      // ajout liste followings
-      User.findOne({username:req.params.username}, (err, docs)=>{
-        console.log("ut qui invite",req.params.username);
-        if(err){
-          res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
-        }
-        //followings = req.body.userToFolow;
-        //user.amis.notifs = Date.now();
-        const user = new User
-            
-        user.followings.push( req.body.userToFollow);
-        console.log("qui est ce ...",req.body.userToFollow);
-        user.save((err, user)=>{
-          if(err){
-            res.status(500).json({message : {msgBody : "une erreur c'est produite", msgError:true}});
-          } 
-          if(user){
-            res.status(200).json({message:"modifications bien enregistrées"});
-          }
-        });
-        
-      });
-
-      // ajout liste followers
-      User.findOne({username:req.body.userToFollow}, (err, user)=>{
-        if(!user){
-          res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
-        }
-        user.followers.push(req.params.username);
-        user.save(err=>{
-          done(err, user);
-        });
-      });
-    },
-    
-    function( user, done){
-      var smtpTransport = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user:details.mail, // generated ethereal user
-          pass: details.password // generated ethereal password
-        },
-      });
-      let mailOptions = {
-        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
-        to: user.mail, // address email receptrice
-        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
-        html: `<h1>Bonjour  ${user.username} </h1><br/>
-        <h4>L'utilisateur ${req.params.username}  vous a ajouter à ça liste d'amis </h4>`,
-         
-      };
-      smtpTransport.sendMail(mailOptions, (err)=>{
-        res.json({message: 'message recu !!!'});
-        done(err);
-      });
-    }
-
-  ], function(err){
-    if(err){
-      return next(err);
-    }
-
-  });
-});*/
-
 // Ajout amis *
 
 router.patch('/follow/:username', (req, res, next)=>{
   async.waterfall([
     function(done){
       // ajout liste followings
-      User.findOne({username:req.params.username}, (err, user)=>{
+      User.findOne({username:req.params.username}, (err, docs)=>{
         console.log("ut qui invite",req.params.username);
-        if(!user){
+        if(!docs){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
         }
         //followings = req.body.userToFolow;
         //user.amis.notifs = Date.now();
             
-        user.followings.push( req.body.userToFollow);
+        docs.followings.push( req.body.userToFollow);
         console.log("qui est ce ...",req.body.userToFollow);
-        user.save((err, user)=>{
+        docs.save((err, docs)=>{
           if(err){
             res.status(500).json({message : {msgBody : "une erreur c'est produite", msgError:true}});
           } 
-          if(user){
-            res.status(200).json({message:"modifications bien enregistrées"});
+          if(docs){
+            //res.status(200).json({message:"modifications bien enregistrées"});
+            res.send(docs);
           }
         });
         
       });
 
       // ajout liste followers
-      User.findOne({username:req.body.userToFollow}, (err, user)=>{
-        if(!user){
+      User.findOne({username:req.body.userToFollow}, (err, docs)=>{
+        if(!docs){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
         }
-        user.followers.push(req.params.username);
-        user.save(err=>{
-          done(err, user);
+        docs.followers.push(req.params.username);
+        docs.save(err=>{
+          done(err, docs);
         });
       });
     },
