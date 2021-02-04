@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 var corsOptions = {
-  origin: 'https://localhost:4200',
+  origin: 'https://swap-chat.herokuapp.com/' || 'https://localhost:4200',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
