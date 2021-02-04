@@ -61,7 +61,17 @@ const UserSchema = new Schema({
         enum : ["admin", "user", "visit" ]    
         
     },
-    amis:[],
+    followers: 
+    {
+        type : [String],
+        date: { type: Date, default: Date.now },
+    },
+    followings:
+    {
+        type:[String],
+        date: { type: Date, default: Date.now },
+    },
+
        
         /*sendBy : { type: String}  ,
         acceptBy : {type:String} ,
@@ -69,8 +79,9 @@ const UserSchema = new Schema({
               
     reset: String,
 
-    resetExpires: Date
-
+    resetExpires: Date,
+    date: { type: Date, default: Date.now },
+    
 });
 
 UserSchema.pre("save", function(next){  
