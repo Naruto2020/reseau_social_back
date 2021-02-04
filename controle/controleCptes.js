@@ -718,11 +718,11 @@ router.get('/:nom', function(req, res) {
 
 // Ajout amis 
 
-router.patch('/follow/:nom', (req, res, next)=>{
+router.patch('/follow/:username', (req, res, next)=>{
   async.waterfall([
     function(done){
       // ajout liste followings
-      User.findOne({nom:req.params.username}, (err, user)=>{
+      User.findOne({username:req.params.username}, (err, user)=>{
         console.log("ut qui invite",req.params.username);
         if(!user){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
@@ -744,7 +744,7 @@ router.patch('/follow/:nom', (req, res, next)=>{
       });
 
       // ajout liste followers
-      User.findOne({nom:req.body.userToFollow}, (err, user)=>{
+      User.findOne({username:req.body.userToFollow}, (err, user)=>{
         if(!user){
           res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
         }
