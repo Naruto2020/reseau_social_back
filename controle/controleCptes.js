@@ -376,7 +376,7 @@ async function sendMail(user, cb){
     subject: "wellcome to Swap-It 👻 ✔", // Sujet 
     html: `<h1>Bonjour  ${user.username} </h1><br/>
     <h4>merci de rejoindre l'aventure Swap-It !</h4>
-    <p>cliquez sur le lien https://localhost:4200/conectUser</p> `, 
+    <p>cliquez sur le lien https://swap-chat.herokuapp.com/conectUser </p> `, 
   }
   // envois du mail et de son contenu 
   let info = await transporter.sendMail(mailOptions);
@@ -494,7 +494,7 @@ router.post("/forgotPassword", (req, res, next)=>{
         subject: "wellcome to Swap-It 👻 ✔", // Sujet 
         html: `<h1>Bonjour  ${user.prenom} </h1><br/>
         <h4>Bienvenue sur Swap-It votre identifiant est ${user.username} et votre mot de passe est ${user.password} clicquez ici pour reinitialiser votre mot de passe !</h4>
-        <p>https://localhost:4200/reset/${token} \n\n ignorez ce mail si vous n'ête pas l'auteur de la démarche<p>`, 
+        <p>https://swap-chat.herokuapp.com/reset/${token} \n\n ignorez ce mail si vous n'ête pas l'auteur de la démarche<p>`, 
       };
       smtpTransport.sendMail(mailOptions, (err)=>{
         res.json({message: 'message recu !!!'});
