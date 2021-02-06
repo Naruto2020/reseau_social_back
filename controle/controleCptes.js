@@ -720,7 +720,7 @@ router.get('/:nom', function(req, res) {
 
 // Ajout amis *
 
-router.patch('/follow/:username', (req, res, next)=>{
+/*router.patch('/follow/:username', (req, res, next)=>{
   async.waterfall([
     function(done){
       // ajout liste followings
@@ -875,43 +875,38 @@ router.patch('/unfollow/:nom', (req, res, next)=>{
     }
 
   });
-});
+});*/
 
 
 
 // ajouter un amis 
 
-/*router.patch('/users/follow/:id', (req, res, next)=>{
+router.patch('/users/follow/:id', (req, res, next)=>{
   async.waterfall([
     function(done){
       if(!ObjetId.isValid(req.params.id) || !ObjetId.isValid(req.body.idToFollow))
         return res.status(400).send(`Id incorrecte ${req.params.id}`);
       try {
-        // ajout a la liste following
+        // ajout a la liste followers
         User.findByIdAndUpdate(
           req.params.id,
-          {$addToSet:{followings : req.body.idToFollow}},
+          {$addToSet:{followers : req.body.idToFollow}},
           {new:true, upsert:true},
           (err, docs) =>{
             if(!err){
-              return res.status(201).json(docs);
+              res.status(200).json(docs);
             }else{
               return res.status(400).json(err);
             }
           },
 
           );
-          // ajout a la liste follower
+          // ajout a la liste followings
           User.findByIdAndUpdate(
             req.body.idToFollow,
-            {$addToSet : {followers:req.params.id}},
+            {$addToSet : {followings:req.params.id}},
             {new:true, upsert:true},
             (err, docs) =>{
-              //if(!err){
-                //return res.status(201).json(docs);
-              //}else{
-                return res.status(400).json(err);
-              //}
               if(err){
                 return res.status(400).json(err);
               }
@@ -971,29 +966,33 @@ router.patch('/users/unfollow/:id', (req, res, next)=>{
       if(!ObjetId.isValid(req.params.id) || !ObjetId.isValid(req.body.idToUnFollow))
         return res.status(400).send(`Id incorrecte ${req.params.id}`);
       try {
-        // retrait a la liste following
+        // retrait a la liste followers
         User.findByIdAndUpdate(
           req.params.id,
-          {$pull:{followings : req.body.idToUnFollow}},
+          {$pull:{followers : req.body.idToUnFollow}},
           {new:true, upsert:true},
           (err, docs) =>{
             if(!err){
-              return res.status(201).json(docs);
+              res.status(200).json(docs);
             }else{
               return res.status(400).json(err);
             }
           }
         );
-        // retrait a la liste follower
+        // retrait a la liste followings
         User.findByIdAndUpdate(
           req.body.idToUnFollow,
-          {$pull : {followers:req.params.id}},
+          {$pull : {followings:req.params.id}},
           {new:true, upsert:true},
           (err, docs) =>{
             
             if(err){
               return res.status(400).json(err);
             }
+            docs.save((err) =>{
+              done(err, docs);
+              
+            })
           }
         )
       } catch (err){
@@ -1035,7 +1034,7 @@ router.patch('/users/unfollow/:id', (req, res, next)=>{
   });
 
     
-});*/
+});
 
 
 // suppression amis

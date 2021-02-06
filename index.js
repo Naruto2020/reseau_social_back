@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 var corsOptions = {
-  origin: 'https://swap-chat.herokuapp.com/' || 'https://localhost:4200',
+  origin:  /*'https://swap-chat.herokuapp.com/' ||*/ 'https://localhost:4200',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
@@ -34,6 +34,7 @@ app.use(cors({ origin: "*", corsOptions}));
 app.use(function (request, response, next) {
   response.header("Access-Control-Allow-Origin", "*");
   response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  response.header({"Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH"});
   next();
 });
 
