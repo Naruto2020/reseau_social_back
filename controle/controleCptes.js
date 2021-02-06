@@ -890,7 +890,7 @@ router.patch('/users/follow/:id', (req, res, next)=>{
         // ajout a la liste followers
         User.findByIdAndUpdate(
           req.params.id,
-          {$addToSet:{followers : req.body.idToFollow}},
+          {$addToSet:{followings : req.body.idToFollow}},
           {new:true, upsert:true},
           (err, docs) =>{
             if(!err){
@@ -904,7 +904,7 @@ router.patch('/users/follow/:id', (req, res, next)=>{
           // ajout a la liste followings
           User.findByIdAndUpdate(
             req.body.idToFollow,
-            {$addToSet : {followings:req.params.id}},
+            {$addToSet : {followers:req.params.id}},
             {new:true, upsert:true},
             (err, docs) =>{
               if(err){
@@ -923,7 +923,7 @@ router.patch('/users/follow/:id', (req, res, next)=>{
 
     },
     
-    function(user, done){
+    function(user,docs, done){
       console.log("let see")
       var smtpTransport = nodemailer.createTransport({
         host: "smtp.gmail.com",
