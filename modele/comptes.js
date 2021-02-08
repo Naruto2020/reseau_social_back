@@ -6,9 +6,9 @@ const SALT_WORK_FACTOR = 10;
 
 
 const UserSchema = new Schema({
-    photo : {
+    /*photo : {
         type : String,
-    },    
+    },*/    
     nom : {
         type: String,
         required: 'le champ nom doit etre remplit',
