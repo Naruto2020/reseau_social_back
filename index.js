@@ -21,11 +21,11 @@ var controleCptes = require("./controle/controleCptes");
 // gestion des dossiers
 app.use("/public/",express.static(path.normalize(__dirname + '/public')));
 app.use(coockieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended:true }));
 
 var corsOptions = {
-  origin:  /*'https://swap-chat.herokuapp.com/' ||*/ 'https://localhost:4200',
+  origin: 'https://localhost:4200',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 

@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 var Image = mongoose.model("Image", {
     //uts : [{type:Schema.Types.ObjectId, ref: "User"}],
    photo : {
-      type : String,
+      type : String, 
       required:"vous devez sélectionner une photo"
    },
    loadBy: {

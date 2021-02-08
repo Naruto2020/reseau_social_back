@@ -158,7 +158,7 @@ router.post("/images", upload.single("photo"), (req, res)=>{
         return  res.send(doc);
       }else{
         console.log(
-          " fichier introuvable et/ou erreur lors de l'enregistrement du fichier:" +
+          " fichier introuvable et/ou erreur lors de l'enregistrement du fichier:" + 
           JSON.stringify(err, undefined, 2)
         );
       }
@@ -303,9 +303,9 @@ router.delete("/imagePros/:id", (req, res, next) => {
 
 
 // ajout d'un utilisateur 
-router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
-  //const file = req.file;
- // console.log(file.filename);
+router.post("/users", upload.single("photo"), (req, res)=>{
+  const file = req.file;
+  console.log(file.filename);
  //var password = req.body.password;
  // bcrypt.hash(password, 10, function(err, hash) {
    // Store hash in your password DB.
@@ -313,7 +313,7 @@ router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
         console.log("erreur de cryptage" + JSON.stringify(err, undefined, 2));
     }else{*/
 
-      const  { nom, prenom, username, mail, password, age, coordonnees, genre, preferences, niveau, presentation, followings, followers} = req.body;
+      const  {photo, nom, prenom, username, mail, password, age, coordonnees, genre, preferences, niveau, presentation, followings, followers} = req.body;
       User.findOne({username}, (err, user)=>{
         if(err){
           res.status(500).json({message : {msgBody : "une erreur c'est produite", msgError:true}});
@@ -322,7 +322,7 @@ router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
           res.status(400).json({message : {msgBody : "pseudo déja utilisé", msgError:true}});
 
         }else{
-          const newUser = new User({nom, prenom, username, mail, password, age, coordonnees, genre, preferences, niveau, presentation, followings, followers});
+          const newUser = new User({ photo ,nom, prenom, username, mail, password, age, coordonnees, genre, preferences, niveau, presentation, followings, followers});
 
           //enregistrement du profil 
           newUser.save((err,doc)=>{
