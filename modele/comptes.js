@@ -74,12 +74,12 @@ const UserSchema = new Schema({
         type:[String],
         date: { type: Date, default: Date.now },
     },
+    /*likes:
+    {
+        type : [String],
+        date: { type: Date, default: Date.now }
+    },*/
 
-       
-        /*sendBy : { type: String}  ,
-        acceptBy : {type:String} ,
-        notifs : Date*/
-              
     reset: String,
 
     resetExpires: Date,

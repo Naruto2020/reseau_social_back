@@ -42,6 +42,7 @@ const {Amis} = require("../modele/amis.js");
 const multer = require("multer");
 const { authenticate } = require("passport");
 const { reset } = require("nodemon");
+const { now } = require("mongoose");
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
@@ -611,9 +612,12 @@ router.delete("/users/:id", (req, res, next) => {
  */
 // ajout d'un post texte 
 router.post("/messagePublic", (req, res)=>{
-  const  { message, commentaires, loadBy} = req.body;
+  const  {postId, message, video, loadBy} = req.body;
   const date = Date.now();
-      const newPost = new Poste({message, commentaires, date, loadBy});
+  var likers = [];
+  var likes = [];
+  var comments = [];
+      const newPost = new Poste({postId, message, likers,likes, comments, video,loadBy, date});
       //enregistrement du post  
       newPost.save((err,doc)=>{
         if(!err){
@@ -700,6 +704,314 @@ router.delete("/messagePublic/:id", (req, res, next) => {
     }
   });
 });
+
+/******************************************************************************************************
+ * *****    *****  gestion des requêtes de like  ***** *****
+ */
+
+// like
+router.patch('/messagePublic/likePost/:id', (req, res, next)=>{
+  async.waterfall([
+    function(done){
+      if(!ObjetId.isValid(req.params.id)|| !ObjetId.isValid(req.body.idToLike))
+        return res.status(400).send(`Id incorrecte ${req.params.id}`);
+      try {
+        // ajout a la liste likers
+        Poste.findByIdAndUpdate(
+          req.params.id,
+          {$addToSet:{likers : req.body.idToLike}},
+          {new:true, upsert:true},
+          (err, docs) =>{
+            if(!err){
+              res.status(200).json(docs);
+            }else{
+              return res.status(400).json(err);
+            }
+          },
+
+          );
+          // ajout a la liste likes
+          Poste.findByIdAndUpdate(
+            req.body.idToLike,
+            {$addToSet : {likes:req.params.id}},
+            {new:true, upsert:true},
+            (err, docs) =>{
+              if(err){
+                return res.status(400).json(err);
+              }
+              docs.save((err) =>{
+                done(err, docs);
+                
+              })
+
+            }
+         )
+      } catch (err){
+        return res.status(500).json({message: err});
+      }
+
+    },
+    
+    function(user,docs, done){
+      console.log("let see")
+      var smtpTransport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user:details.mail, // generated ethereal user
+          pass: details.password // generated ethereal password
+        },
+      });
+      let mailOptions = {
+        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
+        to: user.mail, // address email receptrice
+        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
+        html: `<h1>Bonjour  ${user.username} </h1><br/>
+        <h4>L'utilisateur ${req.body.idToLike} a aimer votre post </h4>`,
+         
+      };
+      smtpTransport.sendMail(mailOptions, (err)=>{
+        res.json({message: 'message recu !!!'});
+        done(err);
+      });
+    }
+
+  ], function(err){
+    if(err){
+      return next(err);
+    }
+
+  });
+});
+
+// unlike
+router.patch('/messagePublic/unlikePost/:id', (req, res, next)=>{
+  async.waterfall([
+    function(done){
+      if(!ObjetId.isValid(req.params.id)|| !ObjetId.isValid(req.body.idToUnLike))
+        return res.status(400).send(`Id incorrecte ${req.params.id}`);
+      try {
+        // ajout a la liste likers
+        Poste.findByIdAndUpdate(
+          req.params.id,
+          {$pull:{likers : req.body.idToUnLike}},
+          {new:true, upsert:true},
+          (err, docs) =>{
+            if(!err){
+              res.status(200).json(docs);
+            }else{
+              return res.status(400).json(err);
+            }
+          },
+
+          );
+          // retrait de la liste likes
+          Poste.findByIdAndUpdate(
+            req.body.idToUnLike,
+            {$pull : {likes:req.params.id}},
+            {new:true, upsert:true},
+            (err, docs) =>{
+              if(err){
+                return res.status(400).json(err);
+              }
+              docs.save((err) =>{
+                done(err, docs);
+                
+              })
+
+            }
+         )
+      } catch (err){
+        return res.status(500).json({message: err});
+      }
+
+    },
+    
+    function(user,docs, done){
+      console.log("let see")
+      var smtpTransport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user:details.mail, // generated ethereal user
+          pass: details.password // generated ethereal password
+        },
+      });
+      let mailOptions = {
+        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
+        to: user.mail, // address email receptrice
+        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
+        html: `<h1>Bonjour  ${user.username} </h1><br/>
+        <h4>L'utilisateur ${req.body.idToUnLike} a cesser  d'aimer votre post </h4>`,
+         
+      };
+      smtpTransport.sendMail(mailOptions, (err)=>{
+        res.json({message: 'message recu !!!'});
+        done(err);
+      });
+    }
+
+  ], function(err){
+    if(err){
+      return next(err);
+    }
+
+  });
+});
+
+
+/*******************************************************************************************************
+ * *****   ******   gestion des requêtes de commentaires *****  ****
+*/
+// like
+router.patch('/messagePublic/comments-post/:id', (req, res, next)=>{
+  async.waterfall([
+    function(done){
+      if(!ObjetId.isValid(req.params.id))
+        return res.status(400).send(`Id incorrecte ${req.params.id}`);
+      try {
+        // ajout a la liste followers
+        Poste.findByIdAndUpdate(
+          req.params.id,
+          {
+            $push:{
+              comments:{
+                commenterId: req.body.commenterId,
+                commenterPseudo: req.body.commenterPseudo,
+                text : req.body.text,
+                timestamp : Date.now()
+              }
+            },
+          },
+          {new : true},
+          (err, docs) =>{
+            if(!err){
+              res.send(docs);
+            }else{
+              return res.status(400).send(err);
+            }
+
+          },
+        );
+         
+      } catch (err){
+        return res.status(400).send(err);
+      }
+
+    },
+    
+    function(user,docs, done){
+      console.log("let see")
+      var smtpTransport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user:details.mail, // generated ethereal user
+          pass: details.password // generated ethereal password
+        },
+      });
+      let mailOptions = {
+        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
+        to: user.mail, // address email receptrice
+        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
+        html: `<h1>Bonjour  ${user.username} </h1><br/>
+        <h4>L'utilisateur ${req.body.idToLike} a aimer votre post </h4>`,
+         
+      };
+      smtpTransport.sendMail(mailOptions, (err)=>{
+        res.json({message: 'message recu !!!'});
+        done(err);
+      });
+    }
+
+  ], function(err){
+    if(err){
+      return next(err);
+    }
+
+  });
+});
+
+// unlike
+/*router.patch('/messagePublic/comments/:id', (req, res, next)=>{
+  async.waterfall([
+    function(done){
+      if(!ObjetId.isValid(req.params.id)|| !ObjetId.isValid(req.body.idToLike))
+        return res.status(400).send(`Id incorrecte ${req.params.id}`);
+      try {
+        // ajout a la liste followers
+        User.findByIdAndUpdate(
+          req.params.id,
+          {$addToSet:{likers : req.body.idToLike}},
+          {new:true, upsert:true},
+          (err, docs) =>{
+            if(!err){
+              res.status(200).json(docs);
+            }else{
+              return res.status(400).json(err);
+            }
+          },
+
+          );
+          // ajout a la liste followings
+          User.findByIdAndUpdate(
+            req.body.idToLike,
+            {$addToSet : {likes:req.params.id}},
+            {new:true, upsert:true},
+            (err, docs) =>{
+              if(err){
+                return res.status(400).json(err);
+              }
+              docs.save((err) =>{
+                done(err, docs);
+                
+              })
+
+            }
+         )
+      } catch (err){
+        return res.status(500).json({message: err});
+      }
+
+    },
+    
+    function(user,docs, done){
+      console.log("let see")
+      var smtpTransport = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for 465, false for other ports
+        auth: {
+          user:details.mail, // generated ethereal user
+          pass: details.password // generated ethereal password
+        },
+      });
+      let mailOptions = {
+        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
+        to: user.mail, // address email receptrice
+        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
+        html: `<h1>Bonjour  ${user.username} </h1><br/>
+        <h4>L'utilisateur ${req.body.idToLike} a aimer votre post </h4>`,
+         
+      };
+      smtpTransport.sendMail(mailOptions, (err)=>{
+        res.json({message: 'message recu !!!'});
+        done(err);
+      });
+    }
+
+  ], function(err){
+    if(err){
+      return next(err);
+    }
+
+  });
+});*/
+
+
 
 /*******************************************************************************************************
  * *****   ******   gestion des requête de recherches et d'ajout d'amis *****  ****
