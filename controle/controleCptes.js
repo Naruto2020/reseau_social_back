@@ -34,7 +34,7 @@ const { User } = require("../modele/comptes.js");
 const {Image} = require("../modele/images.js");
 const {ImagePro} = require("../modele/profils.js");
 const {Poste} = require("../modele/post.js");
-const {Amis} = require("../modele/amis.js");
+//const {Amis} = require("../modele/amis.js");
 
 //const { Image} = require("../modele/images.js");
 
@@ -720,32 +720,32 @@ router.patch('/messagePublic/likePost/:id', (req, res, next)=>{
         Poste.findByIdAndUpdate(
           req.params.id,
           {$addToSet:{likers : req.body.idToLike}},
-          {new:true, upsert:true},
+          {new:true},
           (err, docs) =>{
-            if(!err){
-              res.status(200).json(docs);
-            }else{
-              return res.status(400).json(err);
+            if(err){
+              res.status(400).send(err);
             }
           },
 
-          );
+        );
           // ajout a la liste likes
-          Poste.findByIdAndUpdate(
-            req.body.idToLike,
-            {$addToSet : {likes:req.params.id}},
-            {new:true, upsert:true},
-            (err, docs) =>{
-              if(err){
-                return res.status(400).json(err);
-              }
-              docs.save((err) =>{
-                done(err, docs);
-                
-              })
-
+        Poste.findByIdAndUpdate(
+          req.body.idToLike,
+          {$addToSet : {likes:req.params.id}},
+          {new:true},
+          (err, docs) =>{
+            if(!err){
+              res.send(docs);
+            }else{
+              return res.status(400).send(err);
             }
-         )
+            docs.save((err) =>{
+              done(err, docs);
+                
+            })
+
+          }
+        )
       } catch (err){
         return res.status(500).json({message: err});
       }
@@ -796,32 +796,32 @@ router.patch('/messagePublic/unlikePost/:id', (req, res, next)=>{
         Poste.findByIdAndUpdate(
           req.params.id,
           {$pull:{likers : req.body.idToUnLike}},
-          {new:true, upsert:true},
+          {new:true},
           (err, docs) =>{
-            if(!err){
-              res.status(200).json(docs);
-            }else{
-              return res.status(400).json(err);
+            if(err){
+              res.status(400).send(docs);
             }
           },
 
-          );
-          // retrait de la liste likes
-          Poste.findByIdAndUpdate(
-            req.body.idToUnLike,
-            {$pull : {likes:req.params.id}},
-            {new:true, upsert:true},
-            (err, docs) =>{
-              if(err){
-                return res.status(400).json(err);
-              }
-              docs.save((err) =>{
-                done(err, docs);
-                
-              })
-
+        );
+        // retrait de la liste likes
+        Poste.findByIdAndUpdate(
+          req.body.idToUnLike,
+          {$pull : {likes:req.params.id}},
+          {new:true, upsert:true},
+          (err, docs) =>{
+            if(!err){
+              res.send(docs);
+            }else{
+              return res.status(400).send(err);
             }
-         )
+            docs.save((err) =>{
+              done(err, docs);
+                
+            })
+
+          }
+        )
       } catch (err){
         return res.status(500).json({message: err});
       }
@@ -1029,167 +1029,6 @@ router.get('/:nom', function(req, res) {
     res.status(200).json(user);
   });
 });
-
-// Ajout amis *
-
-/*router.patch('/follow/:username', (req, res, next)=>{
-  async.waterfall([
-    function(done){
-      // ajout liste followings
-      User.findOne({username:req.params.username}, (err, docs)=>{
-        console.log("ut qui invite",req.params.username);
-        if(!docs){
-          res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
-        }
-        //followings = req.body.userToFolow;
-        //user.amis.notifs = Date.now();
-            
-        docs.followings.push( req.body.userToFollow);
-        console.log("qui est ce ...",req.body.userToFollow);
-        docs.save((err, docs)=>{
-          if(err){
-            res.status(500).json({message : {msgBody : "une erreur c'est produite", msgError:true}});
-          } 
-          if(docs){
-            //res.status(200).json({message:"modifications bien enregistrées"});
-            res.send(docs);
-          }
-        });
-        
-      });
-
-      // ajout liste followers
-      User.findOne({username:req.body.userToFollow}, (err, docs)=>{
-        if(!docs){
-          res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
-        }
-        docs.followers.push(req.params.username);
-        docs.save(err=>{
-          done(err, docs);
-        });
-      });
-    },
-    
-    function( user, done){
-      var smtpTransport = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user:details.mail, // generated ethereal user
-          pass: details.password // generated ethereal password
-        },
-      });
-      let mailOptions = {
-        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
-        to: user.mail, // address email receptrice
-        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
-        html: `<h1>Bonjour  ${user.username} </h1><br/>
-        <h4>L'utilisateur ${req.params.username}  vous a ajouter à ça liste d'amis. </h4>`,
-         
-      };
-      smtpTransport.sendMail(mailOptions, (err)=>{
-        res.json({message: 'message recu !!!'});
-        done(err);
-      });
-    }
-
-  ], function(err){
-    if(err){
-      return next(err);
-    }
-
-  });
-}); 
-
-// suppression d'amis 
-
-router.patch('/unfollow/:nom', (req, res, next)=>{
-  async.waterfall([
-    function(done){
-      // retrait de la  liste followings
-      User.findOne({nom:req.params.username}, (err, user)=>{
-        //console.log("ut qui invite",req.params.nom);
-        if(!user){
-          res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
-        }
-        //followings = req.body.userToFolow;
-        //user.amis.notifs = Date.now();
-            
-        //user.followings.push( req.body.userToUnFollow);
-        console.log("qui est ce ...",req.body.userToUnFollow);
-        console.log(user.followings)
-        var arr = user.followings;
-        const index = arr.indexOf(req.body.userToUnFollow);
-        if(index > -1){
-          arr.splice(index,1);
-        }
-
-        console.log(arr);
-
-        user.save((err, user)=>{
-          if(err){
-            res.status(500).json({message : {msgBody : "une erreur c'est produite", msgError:true}});
-          } 
-          if(user){
-            res.status(200).json({message:"modifications bien enregistrées"});
-          }
-        });
-        
-      });
-
-      // retrait de la  liste followers
-      User.findOne({nom:req.body.userToUnFollow}, (err, user)=>{
-        if(!user){
-          res.status(400).json({message : {msgBody : "utilisateur non trouvé .", msgError:true}});
-        }
-        //user.followers.push(req.params.nom);
-        console.log(user.followers);
-        var arr1 = user.followers;
-        const index = arr1.indexOf(req.params.username);
-        if(index > -1){
-          arr1.splice(index,1);
-        }
-
-        user.save(err=>{
-          done(err, user);
-        });
-      });
-    },
-    
-    function( user, done){
-      var smtpTransport = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user:details.mail, // generated ethereal user
-          pass: details.password // generated ethereal password
-        },
-      });
-      let mailOptions = {
-        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
-        to: user.mail, // address email receptrice
-        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
-        html: `<h1>Bonjour  ${user.username} </h1><br/>
-        <h4>L'utilisateur ${req.params.username}  vous a retirer de ça liste d'amis </h4>`,
-         
-      };
-      smtpTransport.sendMail(mailOptions, (err)=>{
-        res.json({message: 'message recu !!!'});
-        done(err);
-      });
-    }
-
-  ], function(err){
-    if(err){
-      return next(err);
-    }
-
-  });
-});*/
-
-
 
 // ajouter un amis 
 
