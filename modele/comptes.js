@@ -74,11 +74,11 @@ const UserSchema = new Schema({
         type:[String],
         date: { type: Date, default: Date.now },
     },
-    /*likes:
+    likes:
     {
         type : [String],
         date: { type: Date, default: Date.now }
-    },*/
+    },
 
     reset: String,
 

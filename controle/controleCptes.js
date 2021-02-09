@@ -314,7 +314,7 @@ router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
         console.log("erreur de cryptage" + JSON.stringify(err, undefined, 2));
     }else{*/
 
-      const  { nom, prenom, username, mail, password, age, coordonnees, genre, preferences, niveau, presentation, followings, followers} = req.body;
+      const  { nom, prenom, username, mail, password, age, coordonnees, genre, preferences,likes, niveau, presentation, followings, followers} = req.body;
       User.findOne({username}, (err, user)=>{
         if(err){
           res.status(500).json({message : {msgBody : "une erreur c'est produite", msgError:true}});
@@ -323,7 +323,7 @@ router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
           res.status(400).json({message : {msgBody : "pseudo déja utilisé", msgError:true}});
 
         }else{
-          const newUser = new User({nom, prenom, username, mail, password, age, coordonnees, genre, preferences, niveau, presentation, followings, followers});
+          const newUser = new User({nom, prenom, username, mail, password, age, coordonnees, genre, preferences,likes, niveau, presentation, followings, followers});
 
           //enregistrement du profil 
           newUser.save((err,doc)=>{

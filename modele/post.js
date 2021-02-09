@@ -23,10 +23,10 @@ var Poste = mongoose.model("Poste", {
         type:[String],
         required:true
     },
-    likes:{
+    /*likes:{
         type:[String],
         required:true
-    },
+    },*/
     comments:{
         type:[
             {
