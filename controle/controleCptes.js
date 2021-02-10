@@ -907,7 +907,7 @@ router.patch('/users/follow/:id', (req, res, next)=>{
         to: user.mail, // address email receptrice
         subject: "wellcome to Swap-It 👻 ✔", // Sujet 
         html: `<h1>Bonjour  ${user.username} </h1><br/>
-        <h4>L'utilisateur ${req.body.idToFollow}  vous ajouter à ça liste d'amis </h4>`,
+        <h4>L'utilisateur ${req.body.idToFollow}  vous à ajouter à ça liste d'amis </h4>`,
          
       };
       smtpTransport.sendMail(mailOptions, (err)=>{
