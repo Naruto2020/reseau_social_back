@@ -743,6 +743,7 @@ router.patch('/messagePublic/likePost/:id', async (req, res, next)=>{
                 
             })*/
 
+            console.log(docs.likes);
           }
         )
       } catch (err){
@@ -751,14 +752,13 @@ router.patch('/messagePublic/likePost/:id', async (req, res, next)=>{
 });
 
 // unlike
-router.patch('/messagePublic/unlikePost/:id', (req, res, next)=>{
-  async.waterfall([
-    function(done){
+router.patch('/messagePublic/unlikePost/:id', async (req, res, next)=>{
+
       if(!ObjetId.isValid(req.params.id)|| !ObjetId.isValid(req.body.idToUnLike))
         return res.status(400).send(`Id incorrecte ${req.params.id}`);
       try {
         // ajout a la liste likers
-        Poste.findByIdAndUpdate(
+        await Poste.findByIdAndUpdate(
           req.params.id,
           {$pull:{likers : req.body.idToUnLike}},
           {new:true},
@@ -770,7 +770,7 @@ router.patch('/messagePublic/unlikePost/:id', (req, res, next)=>{
 
         );
         // retrait de la liste likes
-        Poste.findByIdAndUpdate(
+        await Poste.findByIdAndUpdate(
           req.body.idToUnLike,
           {$pull : {likes:req.params.id}},
           {new:true, upsert:true},
@@ -790,40 +790,6 @@ router.patch('/messagePublic/unlikePost/:id', (req, res, next)=>{
       } catch (err){
         return res.status(500).json({message: err});
       }
-
-    },
-    
-    function(user,docs, done){
-      console.log("let see")
-      var smtpTransport = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // true for 465, false for other ports
-        auth: {
-          user:details.mail, // generated ethereal user
-          pass: details.password // generated ethereal password
-        },
-      });
-      let mailOptions = {
-        from: '"Swap-It 👻" ghpower409@gmail.com', // address email emettrice
-        to: user.mail, // address email receptrice
-        subject: "wellcome to Swap-It 👻 ✔", // Sujet 
-        html: `<h1>Bonjour  ${user.username} </h1><br/>
-        <h4>L'utilisateur ${req.body.idToUnLike} a cesser  d'aimer votre post </h4>`,
-         
-      };
-      smtpTransport.sendMail(mailOptions, (err)=>{
-        res.json({message: 'message recu !!!'});
-        done(err);
-      });
-    }
-
-  ], function(err){
-    if(err){
-      return next(err);
-    }
-
-  });
 });
 
 
