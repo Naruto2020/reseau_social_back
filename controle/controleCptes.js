@@ -640,7 +640,7 @@ router.get("/messagePublic",(req, res)=>{
     }else{
       console.log("erreur de transmission de la liste des postes:" + JSON.stringify(err, undefined, 2));
     }
-  });
+  }).sort({date : -1});
 
 });
 
