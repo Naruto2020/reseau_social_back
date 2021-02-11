@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-var Image = mongoose.model("Image", {
+var ImageSchema = new Schema ({
     //uts : [{type:Schema.Types.ObjectId, ref: "User"}],
    photo : {
       type : String, 
@@ -10,6 +10,7 @@ var Image = mongoose.model("Image", {
    loadBy: {
       type : String
    }
-   // imgPro: [{type:Schema.Types.ObjectId, ref: "ImagePro"}],
+   
 });
+var Image = mongoose.model('Image', ImageSchema);
 module.exports = { Image };

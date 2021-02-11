@@ -304,7 +304,7 @@ router.delete("/imagePros/:id", (req, res, next) => {
 
 
 // ajout d'un utilisateur 
-router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
+router.post("/users", (req, res)=>{
   //const file = req.file;
   //console.log(file.filename);
  //var password = req.body.password;
@@ -314,7 +314,7 @@ router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
         console.log("erreur de cryptage" + JSON.stringify(err, undefined, 2));
     }else{*/
 
-      const  { nom, prenom, username, mail, password, age, coordonnees, genre, preferences,likes, niveau, presentation, followings, followers} = req.body;
+      const  { nom, prenom, username, mail, password, age, coordonnees, genre, preferences, likes, niveau, presentation, followings, followers} = req.body;
       User.findOne({username}, (err, user)=>{
         if(err){
           res.status(500).json({message : {msgBody : "une erreur c'est produite", msgError:true}});
@@ -323,7 +323,7 @@ router.post("/users", /*upload.single("photo"),*/ (req, res)=>{
           res.status(400).json({message : {msgBody : "pseudo déja utilisé", msgError:true}});
 
         }else{
-          const newUser = new User({nom, prenom, username, mail, password, age, coordonnees, genre, preferences,likes, niveau, presentation, followings, followers});
+          const newUser = new User({nom, prenom, username, mail, password, age, coordonnees, genre, preferences , likes, niveau, presentation, followings, followers});
 
           //enregistrement du profil 
           newUser.save((err,doc)=>{
@@ -613,7 +613,7 @@ router.delete("/users/:id", (req, res, next) => {
 // ajout d'un post texte 
 router.post("/messagePublic", (req, res)=>{
   const  {postId, message, video, loadBy} = req.body;
-  const date = Date.now();
+  const date = Date.now().toISOString();
   var likers = [];
   var likes = [];
   var comments = [];
@@ -664,7 +664,7 @@ router.get("/messagePublic/:id", (req, res)=>{
 router.put("/messagePublic/:id" , (req, res, next) => {
   if (!ObjetId.isValid(req.params.id))
     return res.status(400).send(`id incorrecte ${req.params.id}`);
-  var date = Date.now();  
+  var date = Date.now().toISOString();  
   var newPost = {
     message: req.body.message,
     commentaires : req.body.commentaires,
@@ -793,7 +793,7 @@ router.patch('/messagePublic/comments-post/:id', (req, res, next)=>{
       if(!ObjetId.isValid(req.params.id))
         return res.status(400).send(`Id incorrecte ${req.params.id}`);
       try {
-        // ajout a la liste followers
+        // ajout comments 
         Poste.findByIdAndUpdate(
           req.params.id,
           {
@@ -802,7 +802,7 @@ router.patch('/messagePublic/comments-post/:id', (req, res, next)=>{
                 commenterId: req.body.commenterId,
                 commenterPseudo: req.body.commenterPseudo,
                 text : req.body.text,
-                timestamp : Date.now()
+                timestamp : Date.now().toISOString()
               }
             },
           },
@@ -827,7 +827,7 @@ router.patch('/messagePublic/delete-comments-post/:id', (req, res, next)=>{
       if(!ObjetId.isValid(req.params.id))
         return res.status(400).send(`Id incorrecte ${req.params.id}`);
       try {
-        // ajout a la liste followers
+        // suppression commentaires 
         Poste.findByIdAndUpdate(
           req.params.id,
           {
