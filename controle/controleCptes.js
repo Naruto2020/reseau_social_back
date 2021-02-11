@@ -796,7 +796,7 @@ router.patch('/messagePublic/unlikePost/:id', async (req, res, next)=>{
 /*******************************************************************************************************
  * *****   ******   gestion des requêtes de commentaires *****  ****
 */
-// like
+// ajout commentaire
 router.patch('/messagePublic/comments-post/:id', (req, res, next)=>{
       if(!ObjetId.isValid(req.params.id))
         return res.status(400).send(`Id incorrecte ${req.params.id}`);
@@ -817,7 +817,39 @@ router.patch('/messagePublic/comments-post/:id', (req, res, next)=>{
           {new : true},
           (err, docs) =>{
             if(!err){
-              res.send(docs);
+              return res.send(docs);
+            }else{
+              return res.status(400).send(err);
+            }
+
+          },
+        );
+         
+      } catch (err){
+        return res.status(400).send(err);
+      }
+});
+
+// supprimer commentaire
+router.patch('/messagePublic/delete-comments-post/:id', (req, res, next)=>{
+      if(!ObjetId.isValid(req.params.id))
+        return res.status(400).send(`Id incorrecte ${req.params.id}`);
+      try {
+        // ajout a la liste followers
+        Poste.findByIdAndUpdate(
+          req.params.id,
+          {
+            $pull:{
+              comments:{
+                _id: req.body.commentId,
+                
+              }
+            },
+          },
+          {new : true},
+          (err, docs) =>{
+            if(!err){
+              return res.send(docs);
             }else{
               return res.status(400).send(err);
             }
