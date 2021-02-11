@@ -640,7 +640,7 @@ router.get("/messagePublic",(req, res)=>{
     }else{
       console.log("erreur de transmission de la liste des postes:" + JSON.stringify(err, undefined, 2));
     }
-  }).sort({date : -1});
+  });
 
 });
 
@@ -722,12 +722,13 @@ router.patch('/messagePublic/likePost/:id', async (req, res, next)=>{
           {new:true},
           (err, docs) =>{
             if(err){
-              res.status(400).send(err);
+              return res.status(400).send(err);
             }
           },
 
         );
-          // ajout a la liste likes
+
+        // ajout a la liste likes
         await Poste.findByIdAndUpdate(
           req.body.idToLike,
           {$addToSet : {likes:req.params.id}},
@@ -738,12 +739,7 @@ router.patch('/messagePublic/likePost/:id', async (req, res, next)=>{
             }else{
               return res.status(400).send(err);
             }
-            /*docs.save((err) =>{
-              done(err, docs);
-                
-            })*/
 
-            console.log(docs.likes);
           }
         )
       } catch (err){
