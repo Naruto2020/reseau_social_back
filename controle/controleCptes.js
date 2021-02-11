@@ -133,17 +133,6 @@ router.get("/users/:id", (req, res)=>{
 router.post("/images", upload.single("photo"), (req, res)=>{
   const file = req.file;
   console.log(file.filename);
-  /*if(!file){
-      const error = new Error('fichier introuvable');
-      error.httpStatusCode=400;
-      return next(error);
-  }else{
-      res.send(file);
-      console.log(req.file.path);
-  }*/
-
-
-  
   const img = new Image({
     photo : req.file.path,
     loadBy : req.body.loadBy
