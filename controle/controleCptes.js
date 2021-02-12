@@ -670,7 +670,7 @@ router.put("/messagePublic/:id" , (req, res, next) => {
         res.send(doc);
       } else {
         console.log(
-          "erreur lors de la mise a jour du post:" +
+          "erreur lors de la mise a jour du poste:" +
           JSON.stringify(err, undefined, 2)
               );
       }
@@ -791,7 +791,7 @@ router.patch('/messagePublic/comments-post/:id', (req, res, next)=>{
                 commenterId: req.body.commenterId,
                 commenterPseudo: req.body.commenterPseudo,
                 text : req.body.text,
-                timestamp : Date.now().toISOString()
+                timestamp : Date.now()
               }
             },
           },
