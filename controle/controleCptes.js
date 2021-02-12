@@ -653,7 +653,7 @@ router.get("/messagePublic/:id", (req, res)=>{
 router.put("/messagePublic/:id" , (req, res, next) => {
   if (!ObjetId.isValid(req.params.id))
     return res.status(400).send(`id incorrecte ${req.params.id}`);
-  var date = Date.now().toISOString();  
+  var date = Date.now();  
   var newPost = {
     message: req.body.message,
     commentaires : req.body.commentaires,
