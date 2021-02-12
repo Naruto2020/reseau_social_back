@@ -602,7 +602,7 @@ router.delete("/users/:id", (req, res, next) => {
 // ajout d'un post texte 
 router.post("/messagePublic", (req, res)=>{
   const  {postId, message, video, loadBy} = req.body;
-  const date = Date.now().toISOString();
+  const date = Date.now();
   var likers = [];
   var likes = [];
   var comments = [];
