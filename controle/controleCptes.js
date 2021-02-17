@@ -406,7 +406,7 @@ router.put("/users/:id" , (req, res, next) => {
         console.log("erreur de cryptage" + JSON.stringify(err, undefined, 2));
       }else{
         var newUser = {
-                   // photo : req.file.path,
+          // photo : req.file.path,
           nom : req.body.nom,
           prenom : req.body.prenom,
           username : req.body.username,
@@ -718,7 +718,7 @@ router.patch('/messagePublic/likePost/:id', async (req, res, next)=>{
         );
 
         // ajout a la liste likes
-        await Poste.findByIdAndUpdate(
+        await User.findByIdAndUpdate(
           req.body.idToLike,
           {$addToSet : {likes:req.params.id}},
           {new:true},
@@ -755,7 +755,7 @@ router.patch('/messagePublic/unlikePost/:id', async (req, res, next)=>{
 
         );
         // retrait de la liste likes
-        await Poste.findByIdAndUpdate(
+        await User.findByIdAndUpdate(
           req.body.idToUnLike,
           {$pull : {likes:req.params.id}},
           {new:true, upsert:true},
